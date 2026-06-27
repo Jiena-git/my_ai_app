@@ -1,78 +1,100 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh">
 <head>
-    <meta charset="utf-8">
-    <title>智慧课堂大屏</title>
-    <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+    <meta charset="UTF-8" />
+    <title>智慧课堂实时人数检测</title>
+
     <style>
         body {
-            background: #0b1220;
-            color: white;
+            margin: 0;
+            background: #0b1320;
             font-family: Arial;
+            color: white;
+            text-align: center;
         }
-        .top {
-            display: flex;
-            justify-content: space-around;
-            font-size: 30px;
+
+        h1 {
             margin-top: 20px;
         }
-        #chart {
-            width: 80%;
-            height: 400px;
-            margin: auto;
+
+        #count {
+            font-size: 40px;
+            color: #00ffd5;
+            margin: 10px;
         }
-        img {
-            width: 60%;
-            display: block;
-            margin: 20px auto;
-            border: 2px solid #00f7ff;
+
+        #img {
+            width: 80%;
+            max-height: 70vh;
+            border: 3px solid #00ffd5;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+
+        #status {
+            margin-top: 10px;
+            color: #aaa;
         }
     </style>
 </head>
 
 <body>
 
-<div class="top">
-    <div>当前人数：<span id="count">0</span></div>
-</div>
+<h1>智慧课堂实时人数检测</h1>
+
+<div id="count">人数：--</div>
 
 <img id="img" src="" />
 
-<div id="chart"></div>
+<div id="status">系统运行中...</div>
 
 <script>
-let chart = echarts.init(document.getElementById('chart'));
+    // 当前图片序号
+    let idx = 0;
 
-let data = [];
+    // 图像列表（对应你 backend/data/images）
+    const maxImg = 10;
 
-function updateChart() {
-    chart.setOption({
-        xAxis: { type: 'category', data: data.map((_, i) => i) },
-        yAxis: { type: 'value' },
-        series: [{ type: 'line', data: data }]
-    });
-}
+    let currentImg = "";
 
-async function fetchData() {
-    let res = await fetch("http://127.0.0.1:8000/detect?image=PartA_00000.jpg");
-    let json = await res.json();
+    async function fetchData(imageName) {
+        try {
+            const res = await fetch(`http://127.0.0.1:8000/detect?image_name=${imageName}`);
+            const json = await res.json();
 
-    document.getElementById("count").innerText = json.person_count;
+            document.getElementById("count").innerText =
+                "人数：" + (json.person_count ?? 0);
 
-    data.push(json.person_count);
-    if (data.length > 20) data.shift();
+            document.getElementById("status").innerText =
+                "OK - " + imageName;
 
-    updateChart();
-}
+        } catch (e) {
+            console.log(e);
+            document.getElementById("status").innerText = "请求失败";
+        }
+    }
 
-// 模拟轮播图片（你可以换成真实帧）
-let idx = 0;
-setInterval(() => {
-    let imgName = `PartA_0000${idx % 10}.jpg`;
-    document.getElementById("img").src = "../data/images/" + imgName;
-    fetchData();
-    idx++;
-}, 1000);
+    function updateFrame() {
+
+        const imgName = `PartA_${String(idx % maxImg).padStart(5, '0')}.jpg`;
+
+        currentImg = imgName;
+
+        // 更新图片
+        document.getElementById("img").src =
+            `../data/images/${imgName}?t=${Date.now()}`;
+
+        // 请求后端
+        fetchData(imgName);
+
+        idx++;
+    }
+
+    // 初始加载
+    updateFrame();
+
+    // 每1.5秒刷新（不要太快）
+    setInterval(updateFrame, 1500);
 
 </script>
 
