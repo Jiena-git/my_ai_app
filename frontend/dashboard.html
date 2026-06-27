@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>智慧课堂大屏</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+    <style>
+        body {
+            background: #0b1220;
+            color: white;
+            font-family: Arial;
+        }
+        .top {
+            display: flex;
+            justify-content: space-around;
+            font-size: 30px;
+            margin-top: 20px;
+        }
+        #chart {
+            width: 80%;
+            height: 400px;
+            margin: auto;
+        }
+        img {
+            width: 60%;
+            display: block;
+            margin: 20px auto;
+            border: 2px solid #00f7ff;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="top">
+    <div>当前人数：<span id="count">0</span></div>
+</div>
+
+<img id="img" src="" />
+
+<div id="chart"></div>
+
+<script>
+let chart = echarts.init(document.getElementById('chart'));
+
+let data = [];
+
+function updateChart() {
+    chart.setOption({
+        xAxis: { type: 'category', data: data.map((_, i) => i) },
+        yAxis: { type: 'value' },
+        series: [{ type: 'line', data: data }]
+    });
+}
+
+async function fetchData() {
+    let res = await fetch("http://127.0.0.1:8000/detect?image=PartA_00000.jpg");
+    let json = await res.json();
+
+    document.getElementById("count").innerText = json.person_count;
+
+    data.push(json.person_count);
+    if (data.length > 20) data.shift();
+
+    updateChart();
+}
+
+// 模拟轮播图片（你可以换成真实帧）
+let idx = 0;
+setInterval(() => {
+    let imgName = `PartA_0000${idx % 10}.jpg`;
+    document.getElementById("img").src = "../data/images/" + imgName;
+    fetchData();
+    idx++;
+}, 1000);
+
+</script>
+
+</body>
+</html>
