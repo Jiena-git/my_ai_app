@@ -50,35 +50,34 @@ select{padding:8px 16px;font-size:18px}
 </div>
 </div>
 <script>
-let index=1;
-const maxImage=5;
-function clock(){
- const d=new Date();
- document.getElementById("updateTime").textContent=d.toLocaleTimeString();
-}
-async function updateDashboard(){
- const room=document.getElementById("classroom").value;
- const imageName=`PartA_${String(index).padStart(5,'0')}.jpg`;
- const url=`http://127.0.0.1:8000/detect?image_name=${imageName}&classroom=${room}`;
- try{
-   const r=await fetch(url);
-   const data=await r.json();
-   document.getElementById("personCount").textContent=data.person_count;
-   document.getElementById("phoneCount").textContent=data.phone_count;
-   document.getElementById("frontCount").textContent=data.front_people;
-   document.getElementById("attention").textContent=data.attention+"%";
-   document.getElementById("apiStatus").textContent="正常";
-   document.getElementById("detectImage").src=data.image+"?t="+Date.now();
- }catch(e){
-   document.getElementById("apiStatus").textContent="连接失败";
-   console.error(e);
- }
- index=index>=maxImage?1:index+1;
-}
-clock();
-updateDashboard();
-setInterval(clock,1000);
-setInterval(updateDashboard,1500);
+window.onload = function () {
+
+    const imgEl = document.getElementById("detectImage");
+
+    async function update() {
+        try {
+            const res = await fetch("http://127.0.0.1:8000/api/frame");
+            const data = await res.json();
+
+            document.getElementById("personCount").innerText = data.person_count;
+            document.getElementById("phoneCount").innerText = data.phone_count;
+            document.getElementById("frontCount").innerText = data.front_people;
+            document.getElementById("attention").innerText = data.attention + "%";
+
+            imgEl.src ="http://127.0.0.1:8000" + data.image + "?t=" + Date.now();
+
+            document.getElementById("updateTime").innerText =
+                new Date().toLocaleTimeString();
+
+            document.getElementById("apiStatus").innerText = "运行中";
+
+        } catch (e) {
+            console.error(e);
+            document.getElementById("apiStatus").innerText = "异常";
+        }
+    }
+    // 必须启动轮询
+    update();
+    setInterval(update, 1500);
+};
 </script>
-</body>
-</html>
