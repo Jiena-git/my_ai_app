@@ -38,7 +38,10 @@ select{padding:8px 16px;font-size:18px}
 <div class="card"><h3>🪑 前3排人数</h3><div class="value" id="frontCount">0</div></div>
 <div class="card"><h3>👀 注意力</h3><div class="value" id="attention">100%</div></div>
 </div>
-<div class="image-box"><img id="detectImage" alt="检测结果"></div>
+<div class="image-box"><img
+    id="detectImage"
+    alt="检测结果"
+    style="width:100%;height:100%;object-fit:contain;"></div>
 </div>
 <div class="right">
 <div class="panel">
@@ -50,34 +53,106 @@ select{padding:8px 16px;font-size:18px}
 </div>
 </div>
 <script>
+const API = "http://127.0.0.1:8000";
+
 window.onload = function () {
 
-    const imgEl = document.getElementById("detectImage");
+    // ==========================
+    // MJPEG 视频流（只连接一次）
+    // ==========================
+    const img = document.getElementById("detectImage");
+    img.src = API + "/api/mjpeg";
 
-    async function update() {
+    // ==========================
+    // 更新右侧状态
+    // ==========================
+    function setStatus(text) {
+        document.getElementById("apiStatus").innerText = text;
+    }
+
+    // ==========================
+    // 更新统计数据
+    // ==========================
+    function updateCard(data) {
+
+        document.getElementById("personCount").innerText =
+            data.person_count ?? 0;
+
+        document.getElementById("phoneCount").innerText =
+            data.phone_count ?? 0;
+
+        document.getElementById("frontCount").innerText =
+            data.front_people ?? 0;
+
+        document.getElementById("attention").innerText =
+            (data.attention ?? 100) + "%";
+
+        document.getElementById("updateTime").innerText =
+            new Date().toLocaleTimeString();
+
+        setStatus("运行中");
+    }
+
+    // ==========================
+    // 获取JSON数据
+    // ==========================
+    async function updateData() {
+
         try {
-            const res = await fetch("http://127.0.0.1:8000/api/frame");
-            const data = await res.json();
 
-            document.getElementById("personCount").innerText = data.person_count;
-            document.getElementById("phoneCount").innerText = data.phone_count;
-            document.getElementById("frontCount").innerText = data.front_people;
-            document.getElementById("attention").innerText = data.attention + "%";
+            const response = await fetch(API + "/api/frame");
 
-            imgEl.src ="http://127.0.0.1:8000" + data.image + "?t=" + Date.now();
+            if (!response.ok) {
+                throw new Error("HTTP " + response.status);
+            }
 
-            document.getElementById("updateTime").innerText =
-                new Date().toLocaleTimeString();
+            const data = await response.json();
 
-            document.getElementById("apiStatus").innerText = "运行中";
+            // 后端刚启动
+            if (data.status === "loading") {
+                setStatus("模型加载中...");
+                return;
+            }
 
-        } catch (e) {
-            console.error(e);
-            document.getElementById("apiStatus").innerText = "异常";
+            updateCard(data);
+
+        }
+        catch (err) {
+
+            console.log("API连接失败：", err);
+
+            setStatus("等待连接");
         }
     }
-    // 必须启动轮询
-    update();
-    setInterval(update, 1500);
+
+    // ==========================
+    // MJPEG连接成功
+    // ==========================
+    img.onload = function () {
+        console.log("MJPEG Connected");
+    };
+
+    // ==========================
+    // MJPEG连接失败
+    // ==========================
+    img.onerror = function () {
+        console.log("MJPEG Lost");
+
+        setStatus("视频断开");
+
+        // 2秒后自动重连
+        setTimeout(function () {
+            img.src = API + "/api/mjpeg?t=" + Date.now();
+        }, 2000);
+    };
+
+    // ==========================
+    // 启动
+    // ==========================
+    updateData();
+
+    // 每1秒刷新统计数据
+    setInterval(updateData, 1000);
+
 };
 </script>
