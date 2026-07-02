@@ -24,7 +24,8 @@ def analyse_boxes(
     phone_count = 0
     front_people = 0
 
-    front_line = int(image_height * front_ratio)
+    # 前排分界线：画面底部 front_ratio 区域为前排（摄像头在讲台，前排学生离镜头最近=画面最下方）
+    front_line = int(image_height * (1 - front_ratio))
 
     for box in result.boxes:
 
@@ -32,7 +33,7 @@ def analyse_boxes(
 
         conf = float(box.conf[0])
 
-        if conf < 0.35:
+        if conf < 0.03:
             continue
 
         x1, y1, x2, y2 = map(
@@ -47,7 +48,7 @@ def analyse_boxes(
 
             center_y = (y1 + y2) // 2
 
-            if center_y < front_line:
+            if center_y > front_line:
                 front_people += 1
 
         # 手机
@@ -98,48 +99,13 @@ def draw_boxes(
 
     h, w = draw.shape[:2]
 
-    front_line = int(h * front_ratio)
-
-    # 前3排分界线
-    cv2.line(
-
-        draw,
-
-        (0, front_line),
-
-        (w, front_line),
-
-        (255, 255, 0),
-
-        2
-
-    )
-
-    cv2.putText(
-
-        draw,
-
-        "Front 3 Rows",
-
-        (10, front_line - 10),
-
-        cv2.FONT_HERSHEY_SIMPLEX,
-
-        0.8,
-
-        (255, 255, 0),
-
-        2
-
-    )
-
     for box in result.boxes:
 
         cls = int(box.cls[0])
 
         conf = float(box.conf[0])
 
-        if conf < 0.35:
+        if conf < 0.03:
             continue
 
         x1, y1, x2, y2 = map(

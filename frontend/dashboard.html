@@ -3,156 +3,306 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>智慧课堂系统</title>
+<title>Smart Classroom</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#081423;color:#fff;font-family:"Microsoft YaHei"}
-header{height:70px;line-height:70px;text-align:center;background:#0d2238;color:#00eaff;font-size:36px;font-weight:bold}
-.toolbar{padding:12px;background:#11263d;text-align:center}
-select{padding:8px 16px;font-size:18px}
-.container{display:flex;height:calc(100vh - 118px)}
-.left{width:75%;padding:16px}
-.right{width:25%;padding:16px}
-.cards{display:flex;gap:12px;margin-bottom:16px}
-.card{flex:1;background:#11263d;border-radius:10px;padding:16px;text-align:center}
-.card h3{font-size:20px;margin-bottom:10px}
-.value{font-size:42px;color:#00ff90;font-weight:bold}
-.image-box{height:720px;background:#0e2034;border-radius:10px;display:flex;align-items:center;justify-content:center}
-.image-box img{max-width:100%;max-height:100%;object-fit:contain}
-.panel{background:#11263d;border-radius:10px;padding:18px;line-height:2;font-size:20px}
+body{background:#0a0e1a;color:#c8cdd4;font-family:"Microsoft YaHei","PingFang SC",sans-serif;overflow:hidden}
+
+header{
+  height:46px;line-height:46px;
+  background:#0d1018;
+  padding:0 20px;
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid #1a1e2a;
+}
+header .title{font-size:18px;font-weight:bold;color:#e0e4ea;letter-spacing:1px}
+header .info{font-size:12px;color:#8a8f9a}
+
+.toolbar{
+  padding:8px 20px;
+  background:#0d111a;
+  display:flex;align-items:center;gap:16px;
+  border-bottom:1px solid #151a26;
+}
+.toolbar label{font-size:13px;color:#8a8f9a}
+.toolbar select{
+  padding:4px 12px;font-size:13px;
+  background:#1a1f2e;color:#c8cdd4;
+  border:1px solid #2a3040;border-radius:3px;outline:none
+}
+
+.cards{
+  display:flex;gap:10px;
+  padding:10px 20px;
+  background:#0d111a;
+}
+.card{
+  flex:1;
+  background:linear-gradient(180deg, #1e2940 0%, #162032 100%);
+  border-radius:6px;
+  padding:10px 14px 8px;
+  border:1px solid #1e2a3a;
+  min-width:0;
+}
+.card .label{font-size:11px;color:#788296;margin-bottom:4px}
+.card .value{
+  font-size:32px;font-weight:bold;
+  font-family:"DIN Alternate","Arial",sans-serif;
+  line-height:1;
+}
+.card:nth-child(1) .value{color:#e0556a}
+.card:nth-child(2) .value{color:#5b9bd5}
+.card:nth-child(3) .value{color:#d4a84b}
+.card:nth-child(4) .value{color:#8e7cc3}
+.card:nth-child(5) .value{color:#56b6c2}
+
+.container{
+  display:flex;
+  height:calc(100vh - 154px);
+  gap:0;
+}
+.left{
+  flex:1;
+  background:#0c1018;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;
+  border-right:1px solid #1a1e2a;
+}
+.left img{width:100%;height:100%;object-fit:contain}
+.left .overlay{
+  position:absolute;top:10px;left:16px;
+  font-size:12px;color:#5a6070;
+  background:rgba(0,0,0,0.5);
+  padding:4px 10px;border-radius:3px;
+}
+
+.right{
+  width:300px;
+  background:#0d111a;
+  padding:16px;
+  display:flex;flex-direction:column;gap:2px;
+  overflow-y:auto;
+}
+.right .section-title{
+  font-size:12px;color:#5a6378;
+  text-transform:uppercase;
+  letter-spacing:2px;
+  padding:8px 0 4px;
+  border-bottom:1px solid #151a26;
+  margin-bottom:6px;
+}
+.right .info-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:6px 8px;
+  font-size:13px;
+  background:#101520;
+  border-radius:3px;
+  margin:1px 0;
+}
+.right .info-row .key{color:#788296}
+.right .info-row .val{color:#c8cdd4;font-weight:bold}
+
+footer{
+  height:28px;line-height:28px;
+  background:#0a0c12;
+  padding:0 20px;
+  font-size:11px;color:#4a5060;
+  display:flex;justify-content:space-between;
+  border-top:1px solid #151924;
+}
+footer span{display:flex;align-items:center;gap:4px}
+footer .dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+footer .dot.green{background:#4dcb7b}
+footer .dot.red{background:#e0556a}
 </style>
 </head>
 <body>
-<header>智慧课堂系统</header>
+
+<header>
+  <span class="title">Smart Classroom Monitor</span>
+  <span class="info" id="headerTime">--</span>
+</header>
+
 <div class="toolbar">
-教室：
-<select id="classroom">
-<option>A5-101</option><option>A5-102</option><option>A5-103</option><option>A5-104</option><option>A5-105</option>
-</select>
+  <label>Classroom</label>
+  <select id="classroom">
+    <option>A5-101</option><option>A5-102</option><option>A5-103</option>
+    <option>A5-104</option><option>A5-105</option>
+  </select>
+  <label style="margin-left:auto">Model: YOLOv8s | WebSocket</label>
 </div>
-<div class="container">
-<div class="left">
+
 <div class="cards">
-<div class="card"><h3>👥 当前人数</h3><div class="value" id="personCount">0</div></div>
-<div class="card"><h3>📱 玩手机人数</h3><div class="value" id="phoneCount">0</div></div>
-<div class="card"><h3>🪑 前3排人数</h3><div class="value" id="frontCount">0</div></div>
-<div class="card"><h3>👀 注意力</h3><div class="value" id="attention">100%</div></div>
+  <div class="card">
+    <div class="label">Phone Usage</div>
+    <div class="value" id="phoneCount">0</div>
+  </div>
+  <div class="card">
+    <div class="label">Front Row</div>
+    <div class="value" id="frontCount">0</div>
+  </div>
+  <div class="card">
+    <div class="label">Attention</div>
+    <div class="value" id="attention">100%</div>
+  </div>
+  <div class="card">
+    <div class="label">Front Rate</div>
+    <div class="value" id="frontRate">0%</div>
+  </div>
+  <div class="card">
+    <div class="label">Refresh</div>
+    <div class="value" style="font-size:24px">1.5s</div>
+  </div>
 </div>
-<div class="image-box"><img
-    id="detectImage"
-    alt="检测结果"
-    style="width:100%;height:100%;object-fit:contain;"></div>
+
+<div class="container">
+  <div class="left">
+    <img id="detectImage" alt="Detection" src="">
+    <div class="overlay">WebSocket Live</div>
+  </div>
+  <div class="right">
+    <div class="section-title">System Status</div>
+    <div class="info-row">
+      <span class="key">API</span>
+      <span class="val" id="apiStatus">Waiting</span>
+    </div>
+    <div class="info-row">
+      <span class="key">Model</span>
+      <span class="val">YOLOv8s</span>
+    </div>
+    <div class="info-row">
+      <span class="key">Classroom</span>
+      <span class="val" id="roomInfo">A5-101</span>
+    </div>
+    <div class="info-row">
+      <span class="key">Updated</span>
+      <span class="val" id="updateTime">--</span>
+    </div>
+
+    <div class="section-title">Detection</div>
+    <div class="info-row">
+      <span class="key">Phone</span>
+      <span class="val" id="statPhone">0</span>
+    </div>
+    <div class="info-row">
+      <span class="key">Attention</span>
+      <span class="val" id="statAttention">100%</span>
+    </div>
+    <div class="info-row">
+      <span class="key">Front/Total</span>
+      <span class="val" id="statFrontTotal">0/0</span>
+    </div>
+
+    <div class="section-title">Image Info</div>
+    <div class="info-row">
+      <span class="key">Resolution</span>
+      <span class="val" id="imgResolution">--</span>
+    </div>
+  </div>
 </div>
-<div class="right">
-<div class="panel">
-<div>状态：<span id="apiStatus">等待连接</span></div>
-<div>模型:YOLOv8</div>
-<div>更新时间：<span id="updateTime">--</span></div>
-<div>刷新频率:1.5 秒</div>
-</div>
-</div>
-</div>
+
+<footer>
+  <span><span class="dot green" id="statusDot"></span> <span id="footerStatus">Running</span></span>
+  <span>Smart Classroom Monitor v2.0</span>
+  <span id="footerTime">--</span>
+</footer>
+
 <script>
-const API = "http://127.0.0.1:8000";
+const WS_URL = "ws://127.0.0.1:8000";
+
+function getRoom() {
+    return document.getElementById("classroom").value;
+}
 
 window.onload = function () {
-
-    // ==========================
-    // MJPEG 视频流（只连接一次）
-    // ==========================
     const img = document.getElementById("detectImage");
-    img.src = API + "/api/mjpeg";
+    let ws = null;
+    let reconnectTimer = null;
+    let oldBlobUrl = null;
 
-    // ==========================
-    // 更新右侧状态
-    // ==========================
-    function setStatus(text) {
-        document.getElementById("apiStatus").innerText = text;
+    function setStatus(text, ok) {
+        var el = document.getElementById("apiStatus");
+        el.innerText = text;
+        var dot = document.getElementById("statusDot");
+        var fs = document.getElementById("footerStatus");
+        if (ok) { dot.className = "dot green"; fs.innerText = "Running"; }
+        else { dot.className = "dot red"; fs.innerText = "Disconnected"; }
     }
 
-    // ==========================
-    // 更新统计数据
-    // ==========================
-    function updateCard(data) {
-
-        document.getElementById("personCount").innerText =
-            data.person_count ?? 0;
-
-        document.getElementById("phoneCount").innerText =
-            data.phone_count ?? 0;
-
-        document.getElementById("frontCount").innerText =
-            data.front_people ?? 0;
-
-        document.getElementById("attention").innerText =
-            (data.attention ?? 100) + "%";
-
-        document.getElementById("updateTime").innerText =
-            new Date().toLocaleTimeString();
-
-        setStatus("运行中");
+    function updateAll(data) {
+        document.getElementById("phoneCount").innerText = data.phone_count ?? 0;
+        document.getElementById("frontCount").innerText = data.front_people ?? 0;
+        document.getElementById("attention").innerText = (data.attention ?? 100) + "%";
+        var total = data.person_count || 0;
+        var front = data.front_people || 0;
+        document.getElementById("frontRate").innerText = (total > 0 ? Math.round(front / total * 100) : 0) + "%";
+        document.getElementById("updateTime").innerText = new Date().toLocaleTimeString();
+        document.getElementById("statPhone").innerText = data.phone_count ?? 0;
+        document.getElementById("statAttention").innerText = (data.attention ?? 100) + "%";
+        document.getElementById("statFrontTotal").innerText = (data.front_people ?? 0) + "/" + (data.person_count ?? 0);
+        setStatus("Connected", true);
     }
 
-    // ==========================
-    // 获取JSON数据
-    // ==========================
-    async function updateData() {
-
-        try {
-
-            const response = await fetch(API + "/api/frame");
-
-            if (!response.ok) {
-                throw new Error("HTTP " + response.status);
-            }
-
-            const data = await response.json();
-
-            // 后端刚启动
-            if (data.status === "loading") {
-                setStatus("模型加载中...");
-                return;
-            }
-
-            updateCard(data);
-
+    function connectWS(room) {
+        if (ws) {
+            ws.onclose = null;
+            ws.onerror = null;
+            ws.close();
         }
-        catch (err) {
 
-            console.log("API连接失败：", err);
+        ws = new WebSocket(WS_URL + "/api/ws?classroom=" + encodeURIComponent(room));
+        ws.binaryType = "arraybuffer";
 
-            setStatus("等待连接");
-        }
+        ws.onopen = function () {
+            setStatus("Connected", true);
+        };
+
+        ws.onmessage = function (e) {
+            if (e.data instanceof ArrayBuffer) {
+                var blob = new Blob([e.data], { type: "image/jpeg" });
+                var url = URL.createObjectURL(blob);
+                img.src = url;
+                if (oldBlobUrl) URL.revokeObjectURL(oldBlobUrl);
+                oldBlobUrl = url;
+            } else {
+                var data = JSON.parse(e.data);
+                updateAll(data);
+            }
+        };
+
+        ws.onclose = function () {
+            setStatus("Disconnected", false);
+            ws = null;
+            if (reconnectTimer) clearTimeout(reconnectTimer);
+            reconnectTimer = setTimeout(function () {
+                connectWS(getRoom());
+            }, 2000);
+        };
+
+        ws.onerror = function () {
+            if (ws) ws.close();
+        };
     }
 
-    // ==========================
-    // MJPEG连接成功
-    // ==========================
-    img.onload = function () {
-        console.log("MJPEG Connected");
+    document.getElementById("classroom").onchange = function () {
+        var room = this.value;
+        document.getElementById("roomInfo").innerText = room;
+        connectWS(room);
     };
 
-    // ==========================
-    // MJPEG连接失败
-    // ==========================
-    img.onerror = function () {
-        console.log("MJPEG Lost");
+    function updateClock() {
+        var ts = (new Date()).toLocaleTimeString();
+        document.getElementById("headerTime").innerText = ts;
+        document.getElementById("footerTime").innerText = ts;
+        if (img.naturalWidth > 0) {
+            document.getElementById("imgResolution").innerText = img.naturalWidth + "x" + img.naturalHeight;
+        }
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
 
-        setStatus("视频断开");
-
-        // 2秒后自动重连
-        setTimeout(function () {
-            img.src = API + "/api/mjpeg?t=" + Date.now();
-        }, 2000);
-    };
-
-    // ==========================
-    // 启动
-    // ==========================
-    updateData();
-
-    // 每1秒刷新统计数据
-    setInterval(updateData, 1000);
-
+    connectWS(getRoom());
 };
 </script>
+</body>
+</html>
